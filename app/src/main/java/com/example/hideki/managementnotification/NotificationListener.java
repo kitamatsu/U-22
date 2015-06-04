@@ -6,6 +6,9 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Mercury on 2015/06/03.
  */
@@ -17,8 +20,10 @@ public class NotificationListener extends NotificationListenerService{
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         CharSequence text = sbn.getNotification().tickerText;
-        long time  = sbn.getPostTime();
-        String data = String.valueOf(time) + text;
+        //long time  = sbn.getPostTime();
+        Calendar cal = Calendar.getInstance();
+        Date date = cal.getTime();
+        String data = String.valueOf(date) + ": " + text;
         Log.d(TAG,data);
 
     }
