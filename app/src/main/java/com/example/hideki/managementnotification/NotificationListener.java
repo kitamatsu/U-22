@@ -1,6 +1,7 @@
 package com.example.hideki.managementnotification;
 
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -18,7 +19,21 @@ public class NotificationListener extends NotificationListenerService{
     private String TAG ="Notification";
 
     @Override
+    public void onCreate() {
+        Log.d(TAG, "onCreate");
+    }
+
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+
         CharSequence text = sbn.getNotification().tickerText;
         //long time  = sbn.getPostTime();
         Calendar cal = Calendar.getInstance();
@@ -30,6 +45,6 @@ public class NotificationListener extends NotificationListenerService{
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        super.onNotificationRemoved(sbn);
+        Log.d(TAG, "onNotificationRemoved");
     }
 }
