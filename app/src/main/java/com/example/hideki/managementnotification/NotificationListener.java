@@ -1,14 +1,17 @@
 package com.example.hideki.managementnotification;
 
-import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-import android.widget.TextView;
+import android.os.Handler;
+
 
 import java.util.Calendar;
 import java.util.Date;
+
 
 /**
  * Created by Mercury on 2015/06/03.
@@ -16,7 +19,19 @@ import java.util.Date;
 
 public class NotificationListener extends NotificationListenerService{
 
+    private Handler handler;
+
     private String TAG ="Notification";
+    private MyApplistenerInterface listener = null;
+    Managementnotificationdb notifi;
+
+    private final IBinder mBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        NotificationListener getService() {
+            return NotificationListener.this;
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -31,15 +46,22 @@ public class NotificationListener extends NotificationListenerService{
         return super.onStartCommand(intent, flags, startId);
     }
 
+
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
+    public void onNotificationPosted(final StatusBarNotification sbn) {
+
+        Log.d(TAG, "onNotificationPosted");
 
         CharSequence text = sbn.getNotification().tickerText;
-        //long time  = sbn.getPostTime();
         Calendar cal = Calendar.getInstance();
         Date date = cal.getTime();
-        String data = String.valueOf(date) + ": " + text;
-        Log.d(TAG,data);
+
+
+        Intent i = new Intent();
+        i.putExtra("title", sbn.getPackageName());
+        i.putExtra("body", text.toString());
+        i.setAction("ACTION");
+        sendBroadcast(i);
 
     }
 
@@ -47,4 +69,6 @@ public class NotificationListener extends NotificationListenerService{
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.d(TAG, "onNotificationRemoved");
     }
+
+
 }
