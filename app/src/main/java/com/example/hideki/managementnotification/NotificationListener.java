@@ -22,7 +22,6 @@ public class NotificationListener extends NotificationListenerService{
     private Handler handler;
 
     private String TAG ="Notification";
-    private MyApplistenerInterface listener = null;
     Managementnotificationdb notifi;
 
     private final IBinder mBinder = new LocalBinder();
