@@ -1,17 +1,12 @@
 package com.example.hideki.managementnotification;
 
-import android.app.Activity;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 /**
  * Created by Mercury on 2015/07/02.
  */
-public class MNAdapter extends ArrayAdapter<Managementnotificationdb> {
+public class MNAdapter extends ArrayAdapter<Notification> {
 
     Context mContext;
     int mLayoutResourceId;
@@ -28,7 +23,7 @@ public class MNAdapter extends ArrayAdapter<Managementnotificationdb> {
 //    public View getView(int position, View convertView, ViewGroup parent) {
 //        View row = convertView;
 //
-//        final Managementnotificationdb currentItem = getItem(position);
+//        final Notification currentItem = getItem(position);
 //
 //        if (row == null) {//再利用できるrowがあるかどうかをチェック、なければ新規作成
 //            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();

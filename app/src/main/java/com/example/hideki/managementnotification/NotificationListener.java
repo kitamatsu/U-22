@@ -22,7 +22,7 @@ public class NotificationListener extends NotificationListenerService{
     private Handler handler;
 
     private String TAG ="Notification";
-    Managementnotificationdb notifi;
+    Notification notifi;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -57,8 +57,19 @@ public class NotificationListener extends NotificationListenerService{
 
 
         Intent i = new Intent();
+        String title = sbn.getPackageName();
+        String body = text.toString();
+        String[] arrayStr = new String[2];
+        arrayStr[0] = title;
+        arrayStr[1] = body;
+
+        Log.d("onNotificationPosted", arrayStr[0] + " : " + arrayStr[1]);
+
+        //i.putExtra("arrayStr", arrayStr);
+
         i.putExtra("title", sbn.getPackageName());
         i.putExtra("body", text.toString());
+
         i.setAction("ACTION");
         sendBroadcast(i);
 

@@ -1,12 +1,12 @@
 package com.example.hideki.managementnotification;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,6 +17,13 @@ import android.widget.Button;
 import android.os.Handler;
 
 
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.table.DateTimeOffset;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
+
+import java.util.Calendar;
+import java.util.Date;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -25,6 +32,7 @@ public class MainActivity extends ActionBarActivity{
 
     private NotificationReceiver receiver;
     private IntentFilter intentFilter;
+    private Notification notifi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +75,11 @@ public class MainActivity extends ActionBarActivity{
 
     @OnClick(R.id.Button01)
     void clickButton(Button button) {
-        Log.d("Button", "押した");
+        Log.d("Button", "clickButton");
         Intent i = new Intent(android.content.Intent.ACTION_VIEW);
         i.setData(Uri.parse("http://www.google.com/"));
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, 0);
-        Notification notification = new Notification.Builder(MainActivity.this)
+        android.app.Notification notification = new android.app.Notification.Builder(MainActivity.this)
                 .setContentTitle("Title!")
                 .setContentText("Content Text!")
                 .setTicker("Tiker Text!")
@@ -88,11 +96,69 @@ private Handler getNotification  = new Handler() {
     public void handleMessage(Message msg)
     {
         Log.d("Main", "handleMessage");
+        
         Bundle bundle = msg.getData();
+
+        Log.d("handle", bundle.toString());
+        //String[] array = bundle.getStringArray("arrayStr");
         String title = bundle.getString("title");
         String body = bundle.getString("body");
 
-        Log.d("Main", title + " : " + body);
+        Calendar cal = Calendar.getInstance();
+        Date date =  cal.getTime();
+
+        notifi = new Notification();
+
+        notifi.setTitle(title);
+        notifi.setBody(body);
+        notifi.setDate(date);
+        notifi.setComplete(false);
+
+        if(notifi.getBody() == null)
+        {
+            notifi.setBody("");
+        }
+
+        Log.d("handle", "" + title + " : " + body);
+        Log.d("Main", notifi.getTitle() + " : " + notifi.getBody());
+
+        new AsyncTask<Notification, Void, Void>()
+        {
+            MobileServiceClient mClient;
+            MNAdapter mAdapter;
+
+            @Override
+            protected Void doInBackground(final Notification... params) {
+
+                Log.d("Main", "doInBackGround");
+                Log.d("Main", params[0].getBody());
+
+                try{
+                    mClient = new MobileServiceClient("https://mnmobile.azure-mobile.net/",
+                            "FzelBAxIDNvLBsVazacMeokCyNybYI94",
+                            MainActivity.this);
+                    mAdapter = new MNAdapter(MainActivity.this, 0);
+
+                    MobileServiceTable<Notification> dbTable = mClient.getTable("notificationMobile", Notification.class);
+
+                    dbTable.insert(params[0]).get();
+
+                    if(!params[0].isComplete())
+                    {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.add(params[0]);
+                            }
+                        });
+                    }
+                }catch (Exception e)
+                {
+                    Log.d("doInBackground", e.getMessage());
+                }
+                return null;
+            }
+        }.execute(notifi);
     }
 
 

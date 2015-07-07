@@ -28,3 +28,9 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
 }
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
