@@ -13,7 +13,6 @@ import java.util.Date;
 public class Notification {
 
     private String id;
-    private int notificationId;
     private Date date;
     private String title;
     private String body;
@@ -42,14 +41,6 @@ public class Notification {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public int getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(int notificationId) {
-        this.notificationId = notificationId;
     }
 
     public Date getDate() {

@@ -18,7 +18,6 @@ import android.os.Handler;
 
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.table.DateTimeOffset;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
 import java.util.Calendar;
@@ -39,7 +38,8 @@ public class MainActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startService(new Intent(this, NotificationListener.class));
+        //色々送信されるのが煩わしいので
+        //startService(new Intent(this, NotificationListener.class));
 
         receiver = new NotificationReceiver();
         intentFilter = new IntentFilter();
@@ -67,6 +67,8 @@ public class MainActivity extends ActionBarActivity{
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, SimplePreferenceActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -106,6 +108,7 @@ private Handler getNotification  = new Handler() {
 
         Calendar cal = Calendar.getInstance();
         Date date =  cal.getTime();
+        Log.d("handle", cal.getTime().toString());
 
         notifi = new Notification();
 
