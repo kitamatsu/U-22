@@ -39,7 +39,8 @@ public class MainActivity extends ActionBarActivity{
         setContentView(R.layout.activity_main);
 
         //色々送信されるのが煩わしいので
-        //startService(new Intent(this, NotificationListener.class));
+        Intent listener = new Intent(this, NotificationListener.class);
+        //startService(listener);
 
         receiver = new NotificationReceiver();
         intentFilter = new IntentFilter();
@@ -90,7 +91,15 @@ public class MainActivity extends ActionBarActivity{
                 .setAutoCancel(true)
                 .build(); NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(1000, notification);
+    }
 
+    @OnClick(R.id.Button02)
+    void clickButton2(Button button)
+    {
+        Intent listener = new Intent(this, NotificationListener.class);
+        stopService(listener);
+        Log.d("Main", "stopService");
+        //止まらない
     }
 
 private Handler getNotification  = new Handler() {

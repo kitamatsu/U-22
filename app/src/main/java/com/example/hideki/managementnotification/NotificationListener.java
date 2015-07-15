@@ -58,7 +58,14 @@ public class NotificationListener extends NotificationListenerService{
 
         Intent i = new Intent();
         String title = sbn.getPackageName();
-        String body = text.toString();
+
+        String body = "　";
+        if(text != null){
+            body = text.toString();
+        }else{
+            text = "";
+        }
+
         String[] arrayStr = new String[2];
         arrayStr[0] = title;
         arrayStr[1] = body;

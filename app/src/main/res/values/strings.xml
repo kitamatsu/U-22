@@ -3,4 +3,14 @@
     <string name="action_settings">Settings</string>
     <string name="textView">ViewNotification</string>
     <string name="button">通知</string>
+    
+    <!--preference-->
+    <string name="editText_userName_title">UserName</string>
+    <string name="editText_userName_summary">ユーザー名を入力してください</string>
+
+    <string name="editText_password_title">Password</string>
+    <string name="editText_password_summary">パスワードを入力してください</string>
+
+    <string name="editText_childName_title">子機名</string>
+    <string name="editText_childName_summary">子機名を入力してください</string>
 </resources>

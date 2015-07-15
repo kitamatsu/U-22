@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Settings">
+        <EditTextPreference
+            android:key="editText_userName"
+            android:title="@string/editText_userName_title"
+            android:summary="@string/editText_userName_summary"
+            android:dialogTitle="@string/editText_userName_title" />
+
+        <EditTextPreference
+            android:key="editText_password"
+            android:title="@string/editText_password_title"
+            android:summary="@string/editText_password_summary"
+            android:inputType="textPassword"
+            android:dialogTitle="@string/editText_password_title" />
+
+        <EditTextPreference
+            android:key="editText_childName"
+            android:title="@string/editText_childName_title"
+            android:summary="@string/editText_childName_summary"
+            android:dialogTitle="@string/editText_childName_title" />
+    </PreferenceCategory>
+</PreferenceScreen>
