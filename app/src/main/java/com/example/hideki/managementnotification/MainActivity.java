@@ -66,7 +66,7 @@ public class MainActivity extends ActionBarActivity{
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        //setting
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, SimplePreferenceActivity.class);
             startActivity(i);
