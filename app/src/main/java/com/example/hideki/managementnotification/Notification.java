@@ -16,15 +16,13 @@ public class Notification {
     private Date date;
     private String title;
     private String body;
-    private String serialID;
+    private String serialID = Build.SERIAL;
     private Boolean complete;
 
 
     //const
     public Notification(){
-
         this.serialID = Build.SERIAL;
-
     }
 
     public Boolean isComplete() {
