@@ -2,11 +2,11 @@ package com.example.hideki.managementnotification;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -91,57 +91,79 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
             Log.d("SPF", pass);
             Log.d("SPF", child);
 
-            //accountが入っているかどうか
-            if(sharedPreferences.getInt("isAccount", -1) ==  -1 | key.equals(USER_NAME_KEY) | key.equals(PASSWORD_KEY)) {
-                Log.d("SPF", String.valueOf(sharedPreferences.getInt("isAccount", -1)));
-                Log.d("SPF", "アカウント参照");
 
-
-                //参照
-                new AsyncTask<Void, Void, MobileServiceTable<AccountMobile>>() {
+                new AsyncTask<Void, Void, Void>() {
 
                     MobileServiceClient mClient;
                     ChildAdapter mAdapter;
 
                     @Override
-                    protected MobileServiceTable<AccountMobile> doInBackground(Void... params) {
+                    protected Void doInBackground(Void... params) {
 
                         Log.d("SPF", "doInBackGround: AccountMobile");
 
                         try {
 
+                            boolean isChildTable = false; //false = ない
+
                             mClient = new MobileServiceClient("https://mnmobile.azure-mobile.net/",
                                     "FzelBAxIDNvLBsVazacMeokCyNybYI94",
                                     getActivity());
+                            mAdapter = new ChildAdapter(getActivity(), 0);
 
-                            //全部
-                            MobileServiceTable<AccountMobile> acTable = mClient.getTable("AccountMobile", AccountMobile.class);
-                            MobileServiceList<AccountMobile> result = acTable.execute().get();
+                            MobileServiceTable<ChildMobile> cct = mClient.getTable("childMobile", ChildMobile.class);
+                            MobileServiceList<ChildMobile> ccl = cct.execute().get();
 
-                            //usernameとpassが一致する行を探す
-                            for (AccountMobile item : result) {
-                                if (item.getUsername().equals(username) & item.getPassword().equals(pass)) {
-                                    sharedPreferences.edit().putInt("isAccount", item.getAccountid()).commit();
-                                    Log.d("SPF", String.valueOf(sharedPreferences.getInt("isAccount", -1)));
+                            //子機名を更新
+                            for(final ChildMobile ch : ccl){
+                                if(Build.SERIAL.equals(ch.getSerialid())){
+                                    ch.setChildname(child);
+
+                                    cct.update(ch).get();
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mAdapter.remove(ch);
+                                            //refreshItemsFromTable();
+                                        }
+                                    });
+
+                                    isChildTable = true;
                                     break;
                                 }
-
                             }
 
-                            //挿入
-                            Log.d("SPF", "データ挿入");
-                            Log.d("SPF", String.valueOf(sharedPreferences.getInt("isAccount", -1)));
+                            if(!isChildTable){
+                                //------------参照と挿入-----------------
+                                MobileServiceTable<AccountMobile> acTable = mClient.getTable("AccountMobile", AccountMobile.class);
+                                MobileServiceList<AccountMobile> result = acTable.execute().get();
+                                int accountId = -1;
 
-                            //挿入するデータの作成
-                            final ChildMobile cm = new ChildMobile();
-                            cm.setChildname(child);
-                            cm.setComplete(false);
-                            cm.setAccountid(sharedPreferences.getInt("isAccount", -1));
+                                //usernameとpassが一致する行を探す
+                                for (AccountMobile item : result) {
+                                    if (item.getUsername().equals(username) & item.getPassword().equals(pass)) {
+                                        accountId = item.getAccountid();
+                                        break;
+                                    }
+                                }
 
-                            mAdapter = new ChildAdapter(getActivity(), 0);
-                            MobileServiceTable<ChildMobile> childTable = mClient.getTable("childMobile", ChildMobile.class);
+                                if(accountId == -1)
+                                {
+                                    Log.d("SPF", "return");
+                                    return null;
+                                }
 
-                            childTable.insert(cm).get();
+                                Log.d("SPF", "データ挿入");
+
+                                //挿入するデータの作成
+                                final ChildMobile cm = new ChildMobile();
+                                cm.setChildname(child);
+                                cm.setComplete(false);
+                                cm.setAccountid(accountId);
+
+                                MobileServiceTable<ChildMobile> childTable = mClient.getTable("childMobile", ChildMobile.class);
+
+                                childTable.insert(cm).get();
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -149,6 +171,8 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                         mAdapter.add(cm);
                                     }
                                 });
+                                //--------------------------------------
+                            }
 
                         } catch (Exception e) {
                             Log.d("SPF", e.getMessage());
@@ -157,13 +181,6 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                     }
                 }.execute();
 
-
-            }else if(key.equals(CHILD_NAME_KEY)){
-                Log.d("SPF", "更新");
-                Log.d("SPF", String.valueOf(sharedPreferences.getInt("isAccount", -1)));
-            }
-
-
         }else{
             Log.d("SPF", "全て入っていない");
         }
@@ -171,4 +188,5 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
 
 
     }
+
 }
