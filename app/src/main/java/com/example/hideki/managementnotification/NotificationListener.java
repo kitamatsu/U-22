@@ -21,23 +21,13 @@ public class NotificationListener extends NotificationListenerService{
 
     private Handler handler;
 
-    private String TAG ="Notification";
+    private String TAG ="NotificationListener";
     Notification notifi;
-
-    private final IBinder mBinder = new LocalBinder();
-
-    public class LocalBinder extends Binder {
-        NotificationListener getService() {
-            return NotificationListener.this;
-        }
-    }
 
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
     }
-
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -45,6 +35,11 @@ public class NotificationListener extends NotificationListenerService{
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+    }
 
     @Override
     public void onNotificationPosted(final StatusBarNotification sbn) {

@@ -1,5 +1,6 @@
 package com.example.hideki.managementnotification;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -8,6 +9,7 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
@@ -32,13 +34,13 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
         addPreferencesFromResource(R.xml.preference);
 
         EditTextPreference usernamePref = (EditTextPreference) findPreference(USER_NAME_KEY);
-        usernamePref.setSummary(usernamePref.getText());
+        if(usernamePref.getText() != null)usernamePref.setSummary(usernamePref.getText());
 
         EditTextPreference passwordPref = (EditTextPreference) findPreference(PASSWORD_KEY);
-        passwordPref.setSummary(passwordPref.getText().replaceAll(".", "*"));
+        if(passwordPref.getText() != null)passwordPref.setSummary(passwordPref.getText().replaceAll(".", "*"));
 
         EditTextPreference childnamePref = (EditTextPreference) findPreference(CHILD_NAME_KEY);
-        childnamePref.setSummary(childnamePref.getText());
+        if(childnamePref.getText() != null)childnamePref.setSummary(childnamePref.getText());
 
 
     }
@@ -91,15 +93,15 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
             Log.d("SPF", pass);
             Log.d("SPF", child);
 
-
-                new AsyncTask<Void, Void, Void>() {
+               new AsyncTask<Void, Void, Integer>() {
 
                     MobileServiceClient mClient;
                     ChildAdapter mAdapter;
 
                     @Override
-                    protected Void doInBackground(Void... params) {
+                    protected Integer doInBackground(Void... params) {
 
+                        int accountId = -1;
                         Log.d("SPF", "doInBackGround: AccountMobile");
 
                         try {
@@ -111,12 +113,45 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                     getActivity());
                             mAdapter = new ChildAdapter(getActivity(), 0);
 
+                            MobileServiceTable<AccountMobile> acTable = mClient.getTable("AccountMobile", AccountMobile.class);
+                            MobileServiceList<AccountMobile> result = acTable.execute().get();
+
+
+                            //usernameとpassが一致する行を探す
+                            for (AccountMobile item : result) {
+                                if (item.getUsername().equals(username) & item.getPassword().equals(pass)) {
+                                    accountId = item.getAccountid();
+                                    break;
+                                }
+                            }
+
+                            SharedPreferences pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = pref.edit();
+
+                            if(accountId == -1)
+                            {
+                                Log.d("SPF", "username or passが違う");
+                                //editor.remove("isAccount");
+                                return -1;
+
+                            }else{
+//                                editor.putBoolean("isAccount", true);
+//                                editor.commit();
+                            }
+
+
+                            //子機名を更新
                             MobileServiceTable<ChildMobile> cct = mClient.getTable("childMobile", ChildMobile.class);
                             MobileServiceList<ChildMobile> ccl = cct.execute().get();
 
-                            //子機名を更新
                             for(final ChildMobile ch : ccl){
                                 if(Build.SERIAL.equals(ch.getSerialid())){
+
+                                    if(ch.getChildname().equals(child)){
+                                        //正常終了
+                                        return 2;
+                                    }
+
                                     ch.setChildname(child);
 
                                     cct.update(ch).get();
@@ -124,36 +159,18 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                         @Override
                                         public void run() {
                                             mAdapter.remove(ch);
-                                            //refreshItemsFromTable();
                                         }
                                     });
-
+                                    Log.d("SPF", "子機名更新");
                                     isChildTable = true;
-                                    break;
+                                    return 1;
                                 }
                             }
 
+                            //更新できない　＝　データが入ってない
                             if(!isChildTable){
-                                //------------参照と挿入-----------------
-                                MobileServiceTable<AccountMobile> acTable = mClient.getTable("AccountMobile", AccountMobile.class);
-                                MobileServiceList<AccountMobile> result = acTable.execute().get();
-                                int accountId = -1;
 
-                                //usernameとpassが一致する行を探す
-                                for (AccountMobile item : result) {
-                                    if (item.getUsername().equals(username) & item.getPassword().equals(pass)) {
-                                        accountId = item.getAccountid();
-                                        break;
-                                    }
-                                }
-
-                                if(accountId == -1)
-                                {
-                                    Log.d("SPF", "return");
-                                    return null;
-                                }
-
-                                Log.d("SPF", "データ挿入");
+                                 Log.d("SPF", "データ挿入");
 
                                 //挿入するデータの作成
                                 final ChildMobile cm = new ChildMobile();
@@ -171,17 +188,37 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                         mAdapter.add(cm);
                                     }
                                 });
-                                //--------------------------------------
+
                             }
 
                         } catch (Exception e) {
                             Log.d("SPF", e.getMessage());
+                            return -2;
                         }
-                        return null;
+                        return 2;
                     }
-                }.execute();
 
-        }else{
+                   @Override
+                   protected void onPostExecute(Integer i) {
+                       switch (i){
+                           case -1:
+                               Toast.makeText(getActivity(), "ユーザ名または,パスワードが違います", Toast.LENGTH_SHORT).show();
+                               break;
+                           case 1:
+                               Toast.makeText(getActivity(), "子機名を更新しました", Toast.LENGTH_SHORT).show();
+                               break;
+                           case 2:
+                               Toast.makeText(getActivity(), "接続しました", Toast.LENGTH_SHORT).show();
+                               break;
+                           case -2:
+                               Toast.makeText(getActivity(), "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                               break;
+                       }
+                   }
+
+               }.execute();
+
+        }else {
             Log.d("SPF", "全て入っていない");
         }
 

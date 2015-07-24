@@ -32,15 +32,13 @@ public class MainActivity extends ActionBarActivity{
     private NotificationReceiver receiver;
     private IntentFilter intentFilter;
     private Notification notifi;
+    Intent listener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //色々送信されるのが煩わしいので
-        Intent listener = new Intent(this, NotificationListener.class);
-        //startService(listener);
+        listener = new Intent(this, NotificationListener.class);
 
         receiver = new NotificationReceiver();
         intentFilter = new IntentFilter();
@@ -52,30 +50,8 @@ public class MainActivity extends ActionBarActivity{
         ButterKnife.bind(this);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //setting
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(this, SimplePreferenceActivity.class);
-            startActivity(i);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    //通知ボタン
     @OnClick(R.id.Button01)
     void clickButton(Button button) {
         Log.d("Button", "clickButton");
@@ -93,14 +69,15 @@ public class MainActivity extends ActionBarActivity{
         nm.notify(1000, notification);
     }
 
+    //詳細設定ボタン
     @OnClick(R.id.Button02)
     void clickButton2(Button button)
     {
-        Intent listener = new Intent(this, NotificationListener.class);
-        stopService(listener);
-        Log.d("Main", "stopService");
-        //止まらない
+        Intent i = new Intent(this, SimplePreferenceActivity.class);
+        startActivity(i);
     }
+
+
 
 private Handler getNotification  = new Handler() {
     @Override
