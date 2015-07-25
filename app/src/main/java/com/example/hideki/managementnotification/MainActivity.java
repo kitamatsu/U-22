@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity{
     }
 
 
-    //通知ボタン
+    //TEST通知ボタン
     @OnClick(R.id.Button01)
     void clickButton(Button button) {
         Log.d("Button", "clickButton");
@@ -59,9 +59,9 @@ public class MainActivity extends ActionBarActivity{
         i.setData(Uri.parse("http://www.google.com/"));
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, 0);
         android.app.Notification notification = new android.app.Notification.Builder(MainActivity.this)
-                .setContentTitle("Title!")
-                .setContentText("Content Text!")
-                .setTicker("Tiker Text!")
+                .setContentTitle("TEST通知")
+                .setContentText("TEST")
+                .setTicker("TEST通知です")
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.abc_ic_menu_cut_mtrl_alpha)
                 .setAutoCancel(true)
@@ -88,7 +88,6 @@ private Handler getNotification  = new Handler() {
         Bundle bundle = msg.getData();
 
         Log.d("handle", bundle.toString());
-        //String[] array = bundle.getStringArray("arrayStr");
         String title = bundle.getString("title");
         String body = bundle.getString("body");
 
@@ -96,8 +95,8 @@ private Handler getNotification  = new Handler() {
         Date date =  cal.getTime();
         Log.d("handle", cal.getTime().toString());
 
+        //通知作成
         notifi = new Notification();
-
         notifi.setTitle(title);
         notifi.setBody(body);
         notifi.setDate(date);
@@ -111,6 +110,7 @@ private Handler getNotification  = new Handler() {
         Log.d("handle", "" + title + " : " + body);
         Log.d("Main", notifi.getTitle() + " : " + notifi.getBody());
 
+        //非同期
         new AsyncTask<Notification, Void, Void>()
         {
             MobileServiceClient mClient;

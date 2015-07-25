@@ -131,12 +131,7 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                             if(accountId == -1)
                             {
                                 Log.d("SPF", "username or passが違う");
-                                //editor.remove("isAccount");
-                                return -1;
-
-                            }else{
-//                                editor.putBoolean("isAccount", true);
-//                                editor.commit();
+                                return -1;//error
                             }
 
 
@@ -163,7 +158,7 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                     });
                                     Log.d("SPF", "子機名更新");
                                     isChildTable = true;
-                                    return 1;
+                                    return 1;//正常終了
                                 }
                             }
 
@@ -193,9 +188,9 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
 
                         } catch (Exception e) {
                             Log.d("SPF", e.getMessage());
-                            return -2;
+                            return -2; //error
                         }
-                        return 2;
+                        return 2;//正常終了
                     }
 
                    @Override

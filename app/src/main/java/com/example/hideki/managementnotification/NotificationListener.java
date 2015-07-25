@@ -67,8 +67,6 @@ public class NotificationListener extends NotificationListenerService{
 
         Log.d("onNotificationPosted", arrayStr[0] + " : " + arrayStr[1]);
 
-        //i.putExtra("arrayStr", arrayStr);
-
         i.putExtra("title", sbn.getPackageName());
         i.putExtra("body", text.toString());
 
