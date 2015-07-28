@@ -144,10 +144,11 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
 
                                     if(ch.getChildname().equals(child)){
                                         //正常終了
-                                        return 2;
+                                        return 1;
                                     }
 
                                     ch.setChildname(child);
+                                    ch.setAccountid(accountId);
 
                                     cct.update(ch).get();
                                     getActivity().runOnUiThread(new Runnable() {
@@ -156,7 +157,7 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                             mAdapter.remove(ch);
                                         }
                                     });
-                                    Log.d("SPF", "子機名更新");
+                                    Log.d("SPF", "子機名更新とaccountIdを変更");
                                     isChildTable = true;
                                     return 1;//正常終了
                                 }
@@ -190,7 +191,7 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                             Log.d("SPF", e.getMessage());
                             return -2; //error
                         }
-                        return 2;//正常終了
+                        return 1;//正常終了
                     }
 
                    @Override
@@ -200,9 +201,6 @@ public  class SimplePreferenceFragment extends PreferenceFragment implements Sha
                                Toast.makeText(getActivity(), "ユーザ名または,パスワードが違います", Toast.LENGTH_SHORT).show();
                                break;
                            case 1:
-                               Toast.makeText(getActivity(), "子機名を更新しました", Toast.LENGTH_SHORT).show();
-                               break;
-                           case 2:
                                Toast.makeText(getActivity(), "接続しました", Toast.LENGTH_SHORT).show();
                                break;
                            case -2:

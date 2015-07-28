@@ -1,6 +1,7 @@
 package com.example.hideki.managementnotification;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
@@ -8,6 +9,9 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.os.Handler;
 
+
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -50,8 +54,6 @@ public class NotificationListener extends NotificationListenerService{
         Calendar cal = Calendar.getInstance();
         Date date = cal.getTime();
 
-
-        Intent i = new Intent();
         String title = sbn.getPackageName();
 
         String body = "　";
@@ -61,17 +63,50 @@ public class NotificationListener extends NotificationListenerService{
             text = "";
         }
 
-        String[] arrayStr = new String[2];
-        arrayStr[0] = title;
-        arrayStr[1] = body;
+        //通知作成
+        notifi = new Notification();
+        notifi.setTitle(title);
+        notifi.setBody(body);
+        notifi.setDate(date);
+        notifi.setComplete(false);
 
-        Log.d("onNotificationPosted", arrayStr[0] + " : " + arrayStr[1]);
+        if(notifi.getBody() == null)
+        {
+            notifi.setBody("");
+        }
 
-        i.putExtra("title", sbn.getPackageName());
-        i.putExtra("body", text.toString());
+        new AsyncTask<Notification, Void, Void>()
+        {
+            MobileServiceClient mClient;
+            MNAdapter mAdapter;
 
-        i.setAction("ACTION");
-        sendBroadcast(i);
+            @Override
+            protected Void doInBackground(final Notification... params) {
+
+                Log.d("Main", "doInBackGround");
+                Log.d("Main", params[0].getBody());
+
+                try{
+                    mClient = new MobileServiceClient("https://mnmobile.azure-mobile.net/",
+                            "FzelBAxIDNvLBsVazacMeokCyNybYI94",
+                            getApplicationContext());
+                    mAdapter = new MNAdapter(getApplicationContext(), 0);
+
+                    MobileServiceTable<Notification> dbTable = mClient.getTable("notificationMobile", Notification.class);
+
+                    dbTable.insert(params[0]).get();
+
+                    if(!params[0].isComplete())
+                    {
+                        mAdapter.add(params[0]);
+                    }
+                }catch (Exception e)
+                {
+                    Log.d("doInBackground", e.getMessage());
+                }
+                return null;
+            }
+        }.execute(notifi);
 
     }
 

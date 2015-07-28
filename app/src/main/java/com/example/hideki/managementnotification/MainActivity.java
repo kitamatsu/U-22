@@ -38,18 +38,9 @@ public class MainActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listener = new Intent(this, NotificationListener.class);
-
-        receiver = new NotificationReceiver();
-        intentFilter = new IntentFilter();
-        intentFilter.addAction("ACTION");
-        registerReceiver(receiver, intentFilter);
-
-        receiver.registerHandler(getNotification);
-
+        //listener = new Intent(this, NotificationListener.class);
         ButterKnife.bind(this);
     }
-
 
     //TEST通知ボタン
     @OnClick(R.id.Button01)
@@ -76,81 +67,5 @@ public class MainActivity extends ActionBarActivity{
         Intent i = new Intent(this, SimplePreferenceActivity.class);
         startActivity(i);
     }
-
-
-
-private Handler getNotification  = new Handler() {
-    @Override
-    public void handleMessage(Message msg)
-    {
-        Log.d("Main", "handleMessage");
-        
-        Bundle bundle = msg.getData();
-
-        Log.d("handle", bundle.toString());
-        String title = bundle.getString("title");
-        String body = bundle.getString("body");
-
-        Calendar cal = Calendar.getInstance();
-        Date date =  cal.getTime();
-        Log.d("handle", cal.getTime().toString());
-
-        //通知作成
-        notifi = new Notification();
-        notifi.setTitle(title);
-        notifi.setBody(body);
-        notifi.setDate(date);
-        notifi.setComplete(false);
-
-        if(notifi.getBody() == null)
-        {
-            notifi.setBody("");
-        }
-
-        Log.d("handle", "" + title + " : " + body);
-        Log.d("Main", notifi.getTitle() + " : " + notifi.getBody());
-
-        //非同期
-        new AsyncTask<Notification, Void, Void>()
-        {
-            MobileServiceClient mClient;
-            MNAdapter mAdapter;
-
-            @Override
-            protected Void doInBackground(final Notification... params) {
-
-                Log.d("Main", "doInBackGround");
-                Log.d("Main", params[0].getBody());
-
-                try{
-                    mClient = new MobileServiceClient("https://mnmobile.azure-mobile.net/",
-                            "FzelBAxIDNvLBsVazacMeokCyNybYI94",
-                            MainActivity.this);
-                    mAdapter = new MNAdapter(MainActivity.this, 0);
-
-                    MobileServiceTable<Notification> dbTable = mClient.getTable("notificationMobile", Notification.class);
-
-                    dbTable.insert(params[0]).get();
-
-                    if(!params[0].isComplete())
-                    {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.add(params[0]);
-                            }
-                        });
-                    }
-                }catch (Exception e)
-                {
-                    Log.d("doInBackground", e.getMessage());
-                }
-                return null;
-            }
-        }.execute(notifi);
-    }
-
-
-};
 
 }
